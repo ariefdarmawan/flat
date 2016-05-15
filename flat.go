@@ -21,7 +21,7 @@ type Flat struct {
 	file            *os.File
 	br              *bufio.Reader
 	bw              *bufio.Writer
-    lowerName bool
+	lowerName       bool
 	isRead, isWrite bool
 }
 
@@ -62,22 +62,22 @@ func (f *Flat) Open() error {
 		if e != nil {
 			return err("Open.GetHeader", e.Error())
 		}
-        
-        f.lowerName = f.Config.Get("lowercasename",true).(bool)
+
+		f.lowerName = f.Config.Get("lowercasename", true).(bool)
 		for i, v := range mheader {
-            if f.lowerName {
-                f.metadatas.Set(i, &MetaData{
-                    Name:  strings.ToLower(v.(string)),
-                    Type:  "string",
-                    Valid: true,
-                })
-            } else {
-                f.metadatas.Set(i, &MetaData{
-                    Name:  v.(string),
-                    Type:  "string",
-                    Valid: true,
-                })
-            }
+			if f.lowerName {
+				f.metadatas.Set(i, &MetaData{
+					Name:  strings.ToLower(v.(string)),
+					Type:  "string",
+					Valid: true,
+				})
+			} else {
+				f.metadatas.Set(i, &MetaData{
+					Name:  v.(string),
+					Type:  "string",
+					Valid: true,
+				})
+			}
 		}
 	}
 
@@ -109,7 +109,7 @@ func (f *Flat) MoveRead(obj interface{}, step int, from MoveFromEnum) error {
 	return nil
 }
 
-func (f *Flat) ReadString()(txt string, e error){
+func (f *Flat) ReadString() (txt string, e error) {
 	if f.br == nil {
 		f.br = bufio.NewReader(f.file)
 	}
@@ -120,7 +120,7 @@ func (f *Flat) ReadString()(txt string, e error){
 			return
 		}
 		e = err("Read", e.Error())
-        return 
+		return
 	}
 
 	txt = string(blines)
@@ -136,27 +136,27 @@ func (f *Flat) Read(obj interface{}) error {
 		return err("Read", e.Error())
 	}
 
-	m := f.SplitText(txt)
+	m := f.SplitToM(txt)
 	toolkit.Serde(m, obj, "json")
 	return nil
 }
 
 func (f *Flat) ReadM() (m toolkit.M, e error) {
 	var txt string
-    txt, e = f.ReadString()
+	txt, e = f.ReadString()
 	if e != nil {
 		if e == io.EOF {
 			return
 		}
 		e = err("Read", e.Error())
-        return
+		return
 	}
 
-	m = *f.SplitText(txt)
+	m = *f.SplitToM(txt)
 	return
 }
 
-func (f *Flat) SplitText(txt string) *toolkit.M {
+func (f *Flat) SplitToM(txt string) *toolkit.M {
 	tempStr := ""
 	colIndex := 0
 	m := &toolkit.M{}
